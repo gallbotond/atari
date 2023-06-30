@@ -146,6 +146,8 @@ StartFrame:
 
     JSR CalculateDigitOffset    ; calculate the digit offset
 
+    JSR GenerateJetSound        ; configure and enable jet engine audio
+
     sta WSYNC
     sta HMOVE                ; apply the horizontal offsets previously set
 
@@ -423,6 +425,29 @@ EndCollisionCheck:      ; fallback
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ; INC Timer       ; increase the timer
     jmp StartFrame           ; continue to display the next frame
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Generate jet sound based on JetYPos
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+GenerateJetSound SUBROUTINE
+    LDA #3
+    STA AUDV0       ; volume
+
+    ; divide the y pos by 8
+    LDA JetYPos     ; loads jet y pos int accumulator
+    LSR 
+    LSR 
+    LSR     ; divide 3 times by 2 = divide by 8
+    STA Temp        ; store in temp
+    LDA #31     
+    SEC         
+    SBC Temp        ; 31 - (Y/8)
+    STA AUDF0       ; set the new audio frequency register
+
+    LDA #8
+    STA AUDC0       ; tone
+
+    RTS
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Set the color of terrain and river wit green and blue
